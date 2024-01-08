@@ -1,8 +1,7 @@
-import e from "express";
 import User from "../models/user.model.js";
 import bcryptjs from "bcryptjs";
 
-export const signout = async (req, res) => {
+export const signup = async (req, res) => {
     const { username, email, password } = req.body;
     const hashedPassword = await bcryptjs.hash(password, 12); // 12 is the salt
 
