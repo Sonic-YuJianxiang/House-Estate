@@ -1,7 +1,42 @@
-import { useSelector } from "react-redux"
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { deleteUserStart, deleteUserFailure, deleteUserSuccess, signOutUserStart } from "../redux/user/userSlice";
 
 export default function Profile() {
-  const currentUser = useSelector(state => state.user);
+  const { currentUser } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+
+  const handleDeteleUser = async () => {
+    try {
+      dispatch(deleteUserStart());
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+      if (data.success === false) {
+        return dispatch(deleteUserFailure(data.message));
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (error) {
+      dispatch(deleteUserFailure(error.message))
+    }
+  }
+
+  const handleSignOut = async () => {
+    try{
+      dispatch(signOutUserStart());
+      const res = await fetch('/api/auth/signout');
+      const data = await res.json();
+      if (data.success === false) {
+        dispatch(deleteUserFailure(data.message));
+        return;
+      }
+      dispatch(deleteUserSuccess(data));
+    } catch (err) {
+      dispatch(deleteUserFailure(data.message));
+    }
+  }
+
   return (
     <div className="p-3 max-w-lg mx-auto">
       <h1 className='text-3xl font-semibold text-center my-7'>
@@ -16,8 +51,8 @@ export default function Profile() {
         <button className="bg-slate-700 text-white rounded-lg p-3 uppercase hover:opacity-95 disabled:opacity-80">update</button>
       </form>
       <div className="flex justify-between mt-5">
-        <span className="text-red-700 cursor-pointer">Delete Account</span>
-        <span className="text-red-700 cursor-pointer">Sign Out</span>
+        <span onClick={handleDeteleUser} className="text-red-700 cursor-pointer">Delete Account</span>
+        <span onClick={handleSignOut} className="text-red-700 cursor-pointer">Sign Out</span>
       </div>
     </div>
   )

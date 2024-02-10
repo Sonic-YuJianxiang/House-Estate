@@ -5,6 +5,8 @@ import { useDispatch } from 'react-redux';
 import { signInSuccess } from '../redux/user/userSlice';
 import { useNavigate } from 'react-router-dom';
 
+//Why do we need to create the OAuth?
+//We need to create the OAuth component to handle the Google sign-in process. 
 export default function OAuth() {
     const dispatch = useDispatch();
     const navigate = useNavigate();

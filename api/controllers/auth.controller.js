@@ -27,7 +27,13 @@ export const signin = async (req, res, next) => {
             existingUser.password
         );
         if (!validPassword) next(errorHandler(401, "Wrong Credentials!"));
-        // create a token
+        // create a token by using the sign method of the jwt package
+        // JWT is a standard for creating tokens that can be verified by a third party.
+        // It is a self-contained token that has all the information needed to validate a user's identity.
+        // why we use jwt.sign() method?
+        // The sign() method creates a new token based on the payload and the secret key.
+        // The payload is the data that we want to store in the token.
+        // The secret key is used to sign the token, so that the server can verify that the token is legitimate.
         const token = jwt.sign(
             { id: existingUser._id },
             process.env.JWT_SECRET,
@@ -70,6 +76,15 @@ export const google = async (req, res, next) => {
                 .status(200)
                 .json(rest);
         }
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const signOut = async (req, res, next) => {
+    try {
+        res.clearCookie("access_token");
+        res.status(200).json("Signout successfully");
     } catch (error) {
         next(error);
     }

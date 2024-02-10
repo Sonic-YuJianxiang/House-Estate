@@ -22,7 +22,7 @@ export default function SignIn() {
     event.preventDefault();
     try{
       dispatch(signInStart());
-      const res = await fetch('/api/auth/sign-in',
+      const res = await fetch('/api/auth/signin',
       {
         method: 'POST',
         headers: {
