@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 
 export const signup = async (req, res, next) => {
     const { username, email, password } = req.body;
-    const hashedPassword = await bcryptjs.hash(password, 12); // 12 is the salt
+    const hashedPassword = bcryptjs.hashSync(password, 10); // 10 is the salt
 
     const newUser = new User({ username, email, password: hashedPassword });
     try {
@@ -20,13 +20,13 @@ export const signup = async (req, res, next) => {
 export const signin = async (req, res, next) => {
     const { email, password } = req.body;
     try {
-        const existingUser = await User.findOne({ email });
-        if (!existingUser) next(errorHandler(404, "User not found"));
+        const validUser = await User.findOne({ email });
+        if (!validUser) return next(errorHandler(404, "User not found"));
         const validPassword = bcryptjs.compareSync(
             password,
-            existingUser.password
+            validUser.password
         );
-        if (!validPassword) next(errorHandler(401, "Wrong Credentials!"));
+        if (!validPassword) return next(errorHandler(401, "Wrong Credentials!"));
         // create a token by using the sign method of the jwt package
         // JWT is a standard for creating tokens that can be verified by a third party.
         // It is a self-contained token that has all the information needed to validate a user's identity.
@@ -35,10 +35,10 @@ export const signin = async (req, res, next) => {
         // The payload is the data that we want to store in the token.
         // The secret key is used to sign the token, so that the server can verify that the token is legitimate.
         const token = jwt.sign(
-            { id: existingUser._id },
+            { id: validUser._id },
             process.env.JWT_SECRET,
         );
-        const { password: pwd, ...rest } = existingUser._doc;
+        const { password: pwd, ...rest } = validUser._doc;
 
         // put the token into a cookie and send the cookie in the response
         res.cookie("access_token", token, { httpOnly: true })
@@ -63,7 +63,7 @@ export const google = async (req, res, next) => {
                 .json(rest);
         } else {
             const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-            const hashedPassword = await bcryptjs.hash(generatedPassword, 10); // 10 is the salt
+            const hashedPassword = bcryptjs.hashSync(generatedPassword, 10); // 10 is the salt
             const newUser = new User({ username: req.body.name.split(" ").join("").toLowerCase() + Math.random().toString(36).slice(-4), 
             email: req.body.email, password: hashedPassword, avatar: req.body.photo });
             await newUser.save();
