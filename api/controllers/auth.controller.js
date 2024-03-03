@@ -1,11 +1,11 @@
 import User from "../models/user.model.js";
-import bcryptjs from "bcryptjs";
+import bcrypt from "bcryptjs";
 import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
 
 export const signup = async (req, res, next) => {
     const { username, email, password } = req.body;
-    const hashedPassword = bcryptjs.hashSync(password, 10); // 10 is the salt
+    const hashedPassword = bcrypt.hashSync(password, 10); // 10 is the salt
 
     const newUser = new User({ username, email, password: hashedPassword });
     try {
@@ -22,7 +22,7 @@ export const signin = async (req, res, next) => {
     try {
         const validUser = await User.findOne({ email });
         if (!validUser) return next(errorHandler(404, "User not found"));
-        const validPassword = bcryptjs.compareSync(
+        const validPassword = bcrypt.compareSync(
             password,
             validUser.password
         );
@@ -63,7 +63,7 @@ export const google = async (req, res, next) => {
                 .json(rest);
         } else {
             const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
-            const hashedPassword = bcryptjs.hashSync(generatedPassword, 10); // 10 is the salt
+            const hashedPassword = bcrypt.hashSync(generatedPassword, 10); // 10 is the salt
             const newUser = new User({ username: req.body.name.split(" ").join("").toLowerCase() + Math.random().toString(36).slice(-4), 
             email: req.body.email, password: hashedPassword, avatar: req.body.photo });
             await newUser.save();
