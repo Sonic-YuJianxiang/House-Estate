@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import SwiperCore from "swiper";
 import { useSelector } from "react-redux";
-import { Navigation } from "react-router-dom";
 import "swiper/css/bundle";
 import {
     FaBath,
@@ -14,6 +13,7 @@ import {
     FaParking,
     FaShare,
 } from "react-icons/fa";
+import Contact from "../components/Contact";
 
 export default function Listing() {
     SwiperCore.use([Navigation]);
@@ -21,8 +21,9 @@ export default function Listing() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [contact, setContact] = useState(false); //
     const { listingId } = useParams();
-    const { currentUser } = useSelector((state) => state.auth);
+    const {currentUser} = useSelector((state) => state.user);
 
     useEffect(() => {
         const fetchListing = async () => {
@@ -40,15 +41,15 @@ export default function Listing() {
                 setError(true);
                 setLoading(false);
             }
-            
         };
+        fetchListing();
     }, [listingId]);
 
     return (
         <main>
             {loading && <p className="text-center my-7 text-2xl">Loading...</p>}
             {error && <p>Something went wrong</p>}
-            {listing && !loading && !error && <div>
+            {listing && !loading && !error && (<div>
                 <Swiper navigation>
                     {listing.imageUrls.map((url)>(
                         <SwiperSlide key={url}>
@@ -121,9 +122,13 @@ export default function Listing() {
                                 {listing.furniture ? "Furnished" : "Unfurnished"}
                             </li>
                         </ul>
+                        {currentUser && listing.userRef !== currentUser._id && !contact && (<button onClick={()=>setContact(true)} className="bg-slate-700 
+                        text-white rounded-lg uppercase hover:opacity-95 p-3">Contact landlord</button>)}
+                        {contact && <Contact listing={listing}/>}
                     </div>
                 </div>
-            </div>}
+            </div>
+            )}
         </main>
     );
 }
